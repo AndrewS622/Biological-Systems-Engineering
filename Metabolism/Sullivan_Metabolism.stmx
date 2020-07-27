@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee"/>
+		<name>Metabolism</name>
+		<uuid>4f7048a4-5b6a-4d61-85cb-9224dcad56e4</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="1.2" isee:build_number="0897" isee:saved_by_v1="true" lang="en">Stella Professional</product>
+	</header>
+	<sim_specs isee:simulation_delay="0.00062474" method="Euler" time_units="Hours" isee:pause_after_rates="false" isee:instantaneous_flows="false">
+		<start>0</start>
+		<stop>2400</stop>
+		<dt reciprocal="true">1</dt>
+	</sim_specs>
+	<isee:prefs show_module_prefix="true" layer="model" saved_runs="5" keep="false" rifp="true"/>
+	<isee:sensi_specs method="multivariate" runs="0"/>
+	<model_units/>
+	<model>
+		<variables>
+			<stock name="Glucose">
+				<eqn>600</eqn>
+				<inflow>Glucose_Absorption</inflow>
+				<inflow>GNGF</inflow>
+				<inflow>GNGP</inflow>
+				<outflow>Glucose_Metabolism</outflow>
+				<outflow>LG</outflow>
+				<non_negative/>
+			</stock>
+			<stock name="Fat">
+				<eqn>19000</eqn>
+				<inflow>Fat_Absorption</inflow>
+				<inflow>LG</inflow>
+				<inflow>LGFruc</inflow>
+				<outflow>Fat_Metabolism</outflow>
+				<non_negative/>
+			</stock>
+			<stock name="Fiber">
+				<eqn>0</eqn>
+				<inflow>Fiber_Intake</inflow>
+				<outflow>Fiber_Metabolism</outflow>
+				<non_negative/>
+			</stock>
+			<stock name="Proteins">
+				<eqn>0.16*70000</eqn>
+				<inflow>Protein_Absorption</inflow>
+				<outflow>Protein_Metabolism</outflow>
+				<outflow>GNGP</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Fiber Intake">
+				<eqn>Fiber_Ingestion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Fiber Metabolism">
+				<eqn>Fiber_Excretion_Rate*Fiber</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Fat Absorption">
+				<eqn>Fat_Absorption_Rate*Digestive_Fat*3*273/860</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Fat Metabolism">
+				<eqn>Oxidation_Rate*Fat_Degradation_Rate/(140*Total_Degradation*9.4)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Glucose Absorption">
+				<eqn>Glucose_Absorption_Rate*Digestive_Glucose</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Glucose Metabolism">
+				<eqn>(GNGP+GNGF+Oxidation_Rate*Glucose_Degradation_Rate/(180*Total_Degradation))/4.2</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Fructose Absorption">
+				<eqn>Fructose_Absorption_Rate*Digestive_Fructose</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Fructose Metabolism">
+				<eqn>(Oxidation_Rate*Fructose_Degradation_Rate)/(180*Total_Degradation*4.2)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Protein Absorption">
+				<eqn>Digestive_Protein*Protein_Absorption_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Protein Metabolism">
+				<eqn>Oxidation_Rate*Protein_Degradation_Rate/(300*Total_Degradation*4.7)</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Fat\nIngestion\nRate">
+				<eqn>PULSE(27, 0, 8)</eqn>
+			</aux>
+			<aux name="Glucose\nIngestion\nRate">
+				<eqn>PULSE(35, 0, 8)</eqn>
+			</aux>
+			<aux name="Fructose\nIngestion\nRate">
+				<eqn>PULSE(35, 0, 8)</eqn>
+			</aux>
+			<aux name="Protein\nIngestion Rate">
+				<eqn>PULSE(27, 0, 8)</eqn>
+			</aux>
+			<aux name="Fiber\nIngestion\nRate">
+				<eqn>PULSE(5.4, 1, 8)</eqn>
+			</aux>
+			<aux name="Fat\nDegradation\nRate">
+				<eqn>(140/24)*(Fat/INIT(Fat))^2/3</eqn>
+			</aux>
+			<aux name="Glucose\nDegradation\nRate">
+				<eqn>180*Glucose/(24*INIT(Glucose))</eqn>
+			</aux>
+			<aux name="Fructose\nDegradation\nRate">
+				<eqn>(180/24)*Fructose/INIT(Fructose)</eqn>
+			</aux>
+			<aux name="Protein\nDegradation\nRate">
+				<eqn>300*Proteins/(INIT(Proteins)*24)</eqn>
+			</aux>
+			<aux name="Fiber\nExcretion\nRate">
+				<eqn>0.1</eqn>
+			</aux>
+			<stock name="Energy">
+				<eqn>Fructose_Metabolism*4.2+Fat_Metabolism*9.4+Glucose_Metabolism*4.2+Protein_Metabolism*4.7</eqn>
+				<inflow>Energy_Input</inflow>
+				<outflow>Energy_Expenditure</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Energy\nExpenditure">
+				<eqn>Basal_Metabolic_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Basal\nMetabolic\nRate">
+				<eqn>2200/24</eqn>
+			</aux>
+			<flow name="GNGF">
+				<eqn>Fat_Absorption*(92/860)+Fat_Degradation_Rate*(92/860)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="LG">
+				<eqn>(Glucose_Absorption*(Glucose/INIT(Glucose))^4)/(16+(Glucose/INIT(Glucose))^4)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="GNGP">
+				<eqn>Protein_Degradation_Rate*100/(300*4.2)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="LGFruc">
+				<eqn>(Fructose*2.5/INIT(Fructose))</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Fructose\nAbsorption\nRate">
+				<eqn>0.24-Fiber/20</eqn>
+			</aux>
+			<aux name="Fat\nAbsorption\nRate">
+				<eqn>0.24-Fiber/20</eqn>
+			</aux>
+			<aux name="Glucose\nAbsorption\nRate">
+				<eqn>0.24-Fiber/20</eqn>
+			</aux>
+			<aux name="Protein\nAbsorption\nRate">
+				<eqn>0.24-Fiber/100</eqn>
+			</aux>
+			<stock name="Digestive Glucose">
+				<eqn>0</eqn>
+				<inflow>Glucose_Intake</inflow>
+				<outflow>Glucose_Absorption</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Glucose Intake">
+				<eqn>Glucose_Ingestion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Digestive Fat">
+				<eqn>0</eqn>
+				<inflow>Fat_Intake</inflow>
+				<outflow>Fat_Absorption</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Fat Intake">
+				<eqn>Fat_Ingestion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Digestive Fructose">
+				<eqn>0</eqn>
+				<inflow>Fructose_Intake</inflow>
+				<outflow>Fructose_Absorption</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Fructose Intake">
+				<eqn>Fructose_Ingestion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Digestive Protein">
+				<eqn>0</eqn>
+				<inflow>Protein_Intake</inflow>
+				<outflow>Protein_Absorption</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Protein Intake">
+				<eqn>Protein_Ingestion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Oxidation\nRate">
+				<eqn>Basal_Metabolic_Rate-GNGF-GNGP</eqn>
+			</aux>
+			<aux name="Total Degradation">
+				<eqn>(Glucose_Degradation_Rate/180)+(Fructose_Degradation_Rate/180)+(Protein_Degradation_Rate/300)+(Fat_Degradation_Rate/140)</eqn>
+			</aux>
+			<aux name="F Energy Density">
+				<eqn>4.2</eqn>
+			</aux>
+			<aux name="Fat Energy Density">
+				<eqn>9.4</eqn>
+			</aux>
+			<aux name="G Energy Density">
+				<eqn>4.2</eqn>
+			</aux>
+			<aux name="P Energy Density">
+				<eqn>4.7</eqn>
+			</aux>
+			<flow name="Energy Input">
+				<eqn>Fructose_Metabolism*F_Energy_Density+Fat_Metabolism*Fat_Energy_Density+Glucose_Metabolism*G_Energy_Density+Protein_Metabolism*P_Energy_Density</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Fructose">
+				<eqn>50</eqn>
+				<inflow>Fructose_Absorption</inflow>
+				<outflow>Fructose_Metabolism</outflow>
+				<outflow>LGFruc</outflow>
+				<non_negative/>
+			</stock>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="summed"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top" popup_background_color="#FFFECF" popup_text_align="left" popup_vertical_text_align="top"/>
+				<slider color="black" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" input_expands="true" input_width="100"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white"/>
+			</style>
+			<view isee:show_pages="false" page_width="1016" page_height="776" isee:page_cols="2" isee:page_rows="2" isee:scroll_x="8" isee:popup_graphs_are_comparative="true" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="summed"/>
+				</style>
+				<stock x="728.5" y="408.5" width="86" height="69" name="Glucose"/>
+				<stock x="731.5" y="249.5" width="87" height="63" name="Fat"/>
+				<stock x="161.5" y="337.5" width="70" height="53" name="Fiber"/>
+				<stock x="729.5" y="601.5" width="88" height="72" name="Proteins"/>
+				<flow x="123.25" y="363" name="Fiber Intake">
+					<pts>
+						<pt x="85" y="363"/>
+						<pt x="161.5" y="363"/>
+					</pts>
+				</flow>
+				<flow x="275.25" y="363" name="Fiber Metabolism">
+					<pts>
+						<pt x="231.5" y="363"/>
+						<pt x="343" y="363"/>
+					</pts>
+				</flow>
+				<flow x="660.5" y="265" name="Fat Absorption">
+					<pts>
+						<pt x="601.5" y="265"/>
+						<pt x="731.5" y="265"/>
+					</pts>
+				</flow>
+				<flow x="913.75" y="266" name="Fat Metabolism">
+					<pts>
+						<pt x="818.5" y="266"/>
+						<pt x="1033" y="266"/>
+					</pts>
+				</flow>
+				<flow x="662.5" y="434" name="Glucose Absorption">
+					<pts>
+						<pt x="608.5" y="434"/>
+						<pt x="728.5" y="434"/>
+					</pts>
+				</flow>
+				<flow x="911.75" y="435" name="Glucose Metabolism">
+					<pts>
+						<pt x="814.5" y="435"/>
+						<pt x="1033" y="435"/>
+					</pts>
+				</flow>
+				<flow x="659.5" y="109.5" name="Fructose Absorption">
+					<pts>
+						<pt x="603.5" y="109.5"/>
+						<pt x="727.5" y="109.5"/>
+					</pts>
+				</flow>
+				<flow x="910" y="109" name="Fructose Metabolism">
+					<pts>
+						<pt x="816.5" y="109"/>
+						<pt x="1027.5" y="109"/>
+					</pts>
+				</flow>
+				<flow x="666.25" y="637.5" name="Protein Absorption">
+					<pts>
+						<pt x="615" y="637.5"/>
+						<pt x="729.5" y="637.5"/>
+					</pts>
+				</flow>
+				<flow x="899.75" y="634" name="Protein Metabolism">
+					<pts>
+						<pt x="817.5" y="634"/>
+						<pt x="1006" y="634"/>
+					</pts>
+				</flow>
+				<aux x="467" y="191.5" name="Fat\nIngestion\nRate"/>
+				<aux x="461.25" y="344" name="Glucose\nIngestion\nRate"/>
+				<aux x="476.75" y="27.5" name="Fructose\nIngestion\nRate"/>
+				<aux x="460" y="542" name="Protein\nIngestion Rate"/>
+				<aux x="96" y="281" name="Fiber\nIngestion\nRate"/>
+				<connector uid="1" angle="320.194">
+					<from>Fiber_Ingestion_Rate</from>
+					<to>Fiber_Intake</to>
+				</connector>
+				<aux x="969" y="184.5" name="Fat\nDegradation\nRate"/>
+				<aux x="995" y="362" name="Glucose\nDegradation\nRate"/>
+				<aux x="995" y="45.5" name="Fructose\nDegradation\nRate"/>
+				<aux x="927.5" y="701" name="Protein\nDegradation\nRate"/>
+				<aux x="264" y="286" name="Fiber\nExcretion\nRate"/>
+				<stock x="1200" y="477.5" width="60" height="63" name="Energy"/>
+				<flow x="1297" y="509" name="Energy\nExpenditure">
+					<pts>
+						<pt x="1260" y="509"/>
+						<pt x="1358" y="509"/>
+					</pts>
+				</flow>
+				<aux x="1313" y="429" name="Basal\nMetabolic\nRate"/>
+				<connector uid="2" angle="192.529">
+					<from>Basal_Metabolic_Rate</from>
+					<to>Energy_Expenditure</to>
+				</connector>
+				<flow x="744" y="367.75" name="GNGF">
+					<pts>
+						<pt x="744" y="327"/>
+						<pt x="744" y="408.5"/>
+					</pts>
+				</flow>
+				<flow x="797.5" y="366.5" name="LG">
+					<pts>
+						<pt x="797.5" y="408.5"/>
+						<pt x="797.5" y="312.5"/>
+					</pts>
+				</flow>
+				<flow x="775" y="545.5" name="GNGP">
+					<pts>
+						<pt x="775" y="601.5"/>
+						<pt x="775" y="477.5"/>
+					</pts>
+				</flow>
+				<flow x="803" y="191.5" name="LGFruc">
+					<pts>
+						<pt x="803" y="145.5"/>
+						<pt x="803" y="249.5"/>
+					</pts>
+				</flow>
+				<connector uid="3" angle="76.6287">
+					<from>Glucose</from>
+					<to>LG</to>
+				</connector>
+				<connector uid="4" angle="26.5651">
+					<from>Glucose_Absorption</from>
+					<to>LG</to>
+				</connector>
+				<connector uid="5" angle="282.149">
+					<from>Fat_Absorption</from>
+					<to>GNGF</to>
+				</connector>
+				<aux x="632" y="154.5" name="Fructose\nAbsorption\nRate"/>
+				<aux x="626.25" y="318" name="Fat\nAbsorption\nRate"/>
+				<aux x="662.25" y="486.5" name="Glucose\nAbsorption\nRate"/>
+				<aux x="666.25" y="707.5" name="Protein\nAbsorption\nRate"/>
+				<connector uid="6" angle="89.7272">
+					<from>Glucose_Absorption_Rate</from>
+					<to>Glucose_Absorption</to>
+				</connector>
+				<connector uid="7" angle="332.65">
+					<from>Fat_Absorption_Rate</from>
+					<to>Fat_Absorption</to>
+				</connector>
+				<connector uid="8" angle="346.759">
+					<from>Fructose_Absorption_Rate</from>
+					<to>Fructose_Absorption</to>
+				</connector>
+				<stock x="514.5" y="410.5" width="94" height="70" name="Digestive Glucose"/>
+				<flow x="461.25" y="439" name="Glucose Intake">
+					<pts>
+						<pt x="408" y="439"/>
+						<pt x="514.5" y="439"/>
+					</pts>
+				</flow>
+				<stock x="515.5" y="247.5" width="86" height="60" name="Digestive Fat"/>
+				<flow x="461.25" y="276" name="Fat Intake">
+					<pts>
+						<pt x="407" y="276"/>
+						<pt x="515.5" y="276"/>
+					</pts>
+				</flow>
+				<stock x="519.5" y="87.5" width="84" height="58" name="Digestive Fructose"/>
+				<flow x="466.25" y="110" name="Fructose Intake">
+					<pts>
+						<pt x="413" y="110"/>
+						<pt x="519.5" y="110"/>
+					</pts>
+				</flow>
+				<stock x="515" y="603" width="100" height="71" name="Digestive Protein"/>
+				<flow x="460" y="638" name="Protein Intake">
+					<pts>
+						<pt x="405" y="638"/>
+						<pt x="515" y="638"/>
+					</pts>
+				</flow>
+				<connector uid="9" angle="228.504">
+					<from>Fructose_Ingestion_Rate</from>
+					<to>Fructose_Intake</to>
+				</connector>
+				<connector uid="10" angle="237.918">
+					<from>Fat_Ingestion_Rate</from>
+					<to>Fat_Intake</to>
+				</connector>
+				<connector uid="11" angle="215.345">
+					<from>Glucose_Ingestion_Rate</from>
+					<to>Glucose_Intake</to>
+				</connector>
+				<connector uid="12" angle="258.996">
+					<from>Protein_Ingestion_Rate</from>
+					<to>Protein_Intake</to>
+				</connector>
+				<connector uid="13" angle="31.7921">
+					<from>Digestive_Fructose</from>
+					<to>Fructose_Absorption</to>
+				</connector>
+				<connector uid="14" angle="31.373">
+					<from>Digestive_Fat</from>
+					<to>Fat_Absorption</to>
+				</connector>
+				<connector uid="15" angle="32.3196">
+					<from>Digestive_Glucose</from>
+					<to>Glucose_Absorption</to>
+				</connector>
+				<connector uid="16" angle="23.5434">
+					<from>Digestive_Protein</from>
+					<to>Protein_Absorption</to>
+				</connector>
+				<connector uid="17" angle="48.7476">
+					<from>Protein_Absorption_Rate</from>
+					<to>Protein_Absorption</to>
+				</connector>
+				<connector uid="18" angle="313.591">
+					<from>Proteins</from>
+					<to>Protein_Degradation_Rate</to>
+				</connector>
+				<connector uid="19" angle="36.6686">
+					<from>Glucose</from>
+					<to>Glucose_Degradation_Rate</to>
+				</connector>
+				<connector uid="20" angle="35.3803">
+					<from>Fat</from>
+					<to>Fat_Degradation_Rate</to>
+				</connector>
+				<connector uid="21" angle="219.161">
+					<from>Fat_Degradation_Rate</from>
+					<to>GNGF</to>
+				</connector>
+				<aux x="848" y="336.5" name="Oxidation\nRate"/>
+				<connector uid="22" angle="35.5377">
+					<from>GNGF</from>
+					<to>Oxidation_Rate</to>
+				</connector>
+				<connector uid="23" angle="40.5251">
+					<from>GNGP</from>
+					<to>Oxidation_Rate</to>
+				</connector>
+				<connector uid="24" angle="123.311">
+					<from>Basal_Metabolic_Rate</from>
+					<to>Oxidation_Rate</to>
+				</connector>
+				<connector uid="25" angle="52.8831">
+					<from>Oxidation_Rate</from>
+					<to>Fructose_Metabolism</to>
+				</connector>
+				<connector uid="26" angle="25.8444">
+					<from>Oxidation_Rate</from>
+					<to>Fat_Metabolism</to>
+				</connector>
+				<connector uid="27" angle="340.346">
+					<from>Oxidation_Rate</from>
+					<to>Glucose_Metabolism</to>
+				</connector>
+				<connector uid="28" angle="308.108">
+					<from>Oxidation_Rate</from>
+					<to>Protein_Metabolism</to>
+				</connector>
+				<connector uid="29" angle="22.8737">
+					<from>GNGP</from>
+					<to>Glucose_Metabolism</to>
+				</connector>
+				<connector uid="30" angle="0.971022">
+					<from>GNGF</from>
+					<to>Glucose_Metabolism</to>
+				</connector>
+				<connector uid="31" angle="26.7511">
+					<from>Fiber</from>
+					<to>Fiber_Metabolism</to>
+				</connector>
+				<aux x="1024" y="172.5" name="Total Degradation"/>
+				<connector uid="32" angle="81.2993">
+					<from>Glucose_Degradation_Rate</from>
+					<to>Total_Degradation</to>
+				</connector>
+				<connector uid="33" angle="18.1038">
+					<from>Fructose_Degradation_Rate</from>
+					<to>Total_Degradation</to>
+				</connector>
+				<connector uid="34" angle="12.308">
+					<from>Fat_Degradation_Rate</from>
+					<to>Total_Degradation</to>
+				</connector>
+				<connector uid="35" angle="354.726">
+					<from>Protein_Degradation_Rate</from>
+					<to>Total_Degradation</to>
+				</connector>
+				<connector uid="36" angle="216.762">
+					<from>Fructose_Degradation_Rate</from>
+					<to>Fructose_Metabolism</to>
+				</connector>
+				<connector uid="37" angle="150.881">
+					<from>Total_Degradation</from>
+					<to>Fructose_Metabolism</to>
+				</connector>
+				<connector uid="38" angle="220.3">
+					<from>Total_Degradation</from>
+					<to>Fat_Metabolism</to>
+				</connector>
+				<connector uid="39" angle="284.25">
+					<from>Fat_Degradation_Rate</from>
+					<to>Fat_Metabolism</to>
+				</connector>
+				<connector uid="40" angle="320.906">
+					<from>Total_Degradation</from>
+					<to>Protein_Metabolism</to>
+				</connector>
+				<connector uid="41" angle="112.498">
+					<from>Protein_Degradation_Rate</from>
+					<to>Protein_Metabolism</to>
+				</connector>
+				<connector uid="42" angle="307.405">
+					<from>Total_Degradation</from>
+					<to>Glucose_Metabolism</to>
+				</connector>
+				<connector uid="43" angle="221.247">
+					<from>Glucose_Degradation_Rate</from>
+					<to>Glucose_Metabolism</to>
+				</connector>
+				<connector uid="44" angle="92.6838">
+					<from>Protein_Degradation_Rate</from>
+					<to>GNGP</to>
+				</connector>
+				<aux x="1133.25" y="91" name="F Energy Density"/>
+				<aux x="1141" y="227.5" name="Fat Energy Density"/>
+				<aux x="1144" y="408" name="G Energy Density"/>
+				<aux x="1151.25" y="592.5" name="P Energy Density"/>
+				<stacked_container uid="45" x="200" y="901">
+					<graph x="25" y="776" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Fat" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Fat"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="46" x="554.5" y="905">
+					<graph x="379.5" y="780" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Glucose" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Glucose"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<flow x="1144" y="504" name="Energy Input">
+					<pts>
+						<pt x="1088" y="504"/>
+						<pt x="1200" y="504"/>
+					</pts>
+				</flow>
+				<connector uid="47" angle="346.13">
+					<from>Glucose_Metabolism</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="48" angle="329.58">
+					<from>Fat_Metabolism</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="49" angle="1.90915">
+					<from>Fructose_Metabolism</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="50" angle="323.765">
+					<from>F_Energy_Density</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="51" angle="301.122">
+					<from>Fat_Energy_Density</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="52" angle="76.1538">
+					<from>P_Energy_Density</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="53" angle="326.31">
+					<from>G_Energy_Density</from>
+					<to>Energy_Input</to>
+				</connector>
+				<connector uid="54" angle="38.6598">
+					<from>Protein_Metabolism</from>
+					<to>Energy_Input</to>
+				</connector>
+				<stock x="727.5" y="73.5" width="89" height="72" name="Fructose"/>
+				<connector uid="55" angle="268.167">
+					<from>Fructose</from>
+					<to>LGFruc</to>
+				</connector>
+				<connector uid="56" angle="32.0871">
+					<from>Fructose</from>
+					<to>Fructose_Degradation_Rate</to>
+				</connector>
+				<connector uid="57" angle="48.9302">
+					<from>Fiber</from>
+					<to>Fructose_Absorption_Rate</to>
+				</connector>
+				<connector uid="58" angle="356.154">
+					<from>Fiber</from>
+					<to>Fat_Absorption_Rate</to>
+				</connector>
+				<connector uid="59" angle="324.597">
+					<from>Fiber</from>
+					<to>Glucose_Absorption_Rate</to>
+				</connector>
+				<connector uid="60" angle="288.622">
+					<from>Fiber</from>
+					<to>Protein_Absorption_Rate</to>
+				</connector>
+				<connector uid="61" angle="309.289">
+					<from>Fiber_Excretion_Rate</from>
+					<to>Fiber_Metabolism</to>
+				</connector>
+				<stacked_container uid="62" x="554.5" y="1155">
+					<graph x="379.5" y="1030" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Fructose" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Fructose"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="63" x="200" y="1155">
+					<graph x="25" y="1030" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Protein" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Proteins"/>
+						</plot>
+					</graph>
+				</stacked_container>
+			</view>
+		</views>
+	</model>
+</xmile>
+

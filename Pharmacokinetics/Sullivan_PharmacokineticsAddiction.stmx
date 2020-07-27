@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee"/>
+		<name>PharmacokineticsAddiction2</name>
+		<uuid>5e5da101-b712-4012-8379-4131c48ac1e7</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="1.2" isee:build_number="0897" isee:saved_by_v1="true" lang="en">Stella Professional</product>
+	</header>
+	<sim_specs isee:simulation_delay="0.00299401" method="Euler" time_units="Days" isee:pause_after_rates="false" isee:instantaneous_flows="false">
+		<start>0</start>
+		<stop>500</stop>
+		<dt reciprocal="true">4</dt>
+	</sim_specs>
+	<isee:prefs show_module_prefix="true" live_update_on_drag="true" layer="model" saved_runs="5" keep="false" rifp="true"/>
+	<isee:sensi_specs method="multivariate" runs="0"/>
+	<model_units/>
+	<model>
+		<variables>
+			<stock name="Drug in Bloodstream">
+				<eqn>0</eqn>
+				<inflow>Absorption</inflow>
+				<outflow>Elimination</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Absorption">
+				<eqn>(Concentration_in_Stomach-Concentration_in_Blood)*Absorption_Constant_of_Drug*Stomach_Volume</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Elimination">
+				<eqn>Metabolism_Constant*Drug_in_Bloodstream</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Drug in Stomach">
+				<eqn>3</eqn>
+				<inflow>Ingestion</inflow>
+				<outflow>Absorption</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Ingestion">
+				<eqn>Dosage</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Dosage">
+				<eqn>IF(Concentration_in_Blood&lt;Minimum_Therapeutic_Concentration)
+THEN PULSE(3750, 0, 1000)+PULSE(10000*Metabolism_Constant, 5, 2)
+ELSE  PULSE(3750, 0, 1000)</eqn>
+			</aux>
+			<aux name="Metabolism Constant">
+				<eqn>IF (Concentration_in_Blood&gt;Adaptive_Response_Threshold)
+THEN PREVIOUS(SELF,.693/16)+Adaptive_Response_Magnitude
+ELSE PREVIOUS(SELF, .693/16)</eqn>
+			</aux>
+			<aux name="Concentration in\nStomach">
+				<eqn>Drug_in_Stomach/Stomach_Volume</eqn>
+			</aux>
+			<aux name="Concentration in\nBlood">
+				<eqn>Drug_in_Bloodstream/Blood_Volume</eqn>
+			</aux>
+			<aux name="Stomach Volume">
+				<eqn>500</eqn>
+			</aux>
+			<aux name="Blood Volume">
+				<eqn>Body_Weight</eqn>
+				<gf>
+					<xscale min="100" max="200"/>
+					<yscale min="4500" max="5500"/>
+					<ypts>4500,4600,4700,4800,4900,5000,5100,5200,5300,5400,5500</ypts>
+				</gf>
+			</aux>
+			<aux name="Absorption Constant\nof Drug">
+				<eqn>0.693/2</eqn>
+			</aux>
+			<aux name="Body Weight">
+				<eqn>100</eqn>
+			</aux>
+			<aux name="Minimum Therapeutic\nConcentration">
+				<eqn>0.25</eqn>
+			</aux>
+			<aux name="Toxic Concentration">
+				<eqn>0.6</eqn>
+			</aux>
+			<aux name="Adaptive Response\nThreshold">
+				<eqn>0.25</eqn>
+			</aux>
+			<aux name="Adaptive Response\nMagnitude">
+				<eqn>0.001</eqn>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="instantaneous"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top" popup_background_color="#FFFECF"/>
+				<slider color="black" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" input_expands="true" input_width="100"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white"/>
+			</style>
+			<view isee:show_pages="false" page_width="1016" page_height="776" isee:page_cols="2" isee:page_rows="2" isee:scroll_y="170" zoom="120" isee:popup_graphs_are_comparative="true" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="instantaneous"/>
+				</style>
+				<stacked_container uid="1" x="95.625" y="601" width="457.75" height="312">
+					<graph x="95.625" y="601" width="457.75" height="312" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Concentration of Drug in Bloodstream" left_axis_multi_scale="false" left_axis_auto_scale="false" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Concentration_in_Blood"/>
+						</plot>
+						<plot color="red" pen_style="dot_dashed" pen_width="1" index="1" show_y_axis="true">
+							<entity name="Minimum_Therapeutic_Concentration"/>
+						</plot>
+						<plot color="fuchsia" pen_style="dotted" pen_width="1" index="2" show_y_axis="true">
+							<entity name="Toxic_Concentration"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stock x="505.5" y="275.5" width="102" height="62" name="Drug in Bloodstream"/>
+				<flow x="444.5" y="307" name="Absorption">
+					<pts>
+						<pt x="395.5" y="307"/>
+						<pt x="505.5" y="307"/>
+					</pts>
+				</flow>
+				<flow x="662.25" y="305" name="Elimination">
+					<pts>
+						<pt x="607.5" y="305"/>
+						<pt x="741" y="305"/>
+					</pts>
+				</flow>
+				<stock x="290.5" y="277" width="105" height="60" name="Drug in Stomach"/>
+				<flow x="222.25" y="309" name="Ingestion">
+					<pts>
+						<pt x="154" y="309"/>
+						<pt x="290.5" y="309"/>
+					</pts>
+				</flow>
+				<aux x="118" y="416" name="Dosage"/>
+				<connector uid="2" angle="86.8202">
+					<from>Dosage</from>
+					<to>Ingestion</to>
+				</connector>
+				<aux x="694" y="141" name="Metabolism Constant"/>
+				<connector uid="3" angle="315">
+					<from>Metabolism_Constant</from>
+					<to>Elimination</to>
+				</connector>
+				<aux x="343" y="403" name="Concentration in\nStomach"/>
+				<aux x="598.5" y="407" name="Concentration in\nBlood"/>
+				<aux x="404.5" y="502" name="Stomach Volume"/>
+				<aux x="616.5" y="502" name="Blood Volume"/>
+				<connector uid="4" angle="74.7449">
+					<from>Stomach_Volume</from>
+					<to>Concentration_in_Stomach</to>
+				</connector>
+				<connector uid="5" angle="245.556">
+					<from>Drug_in_Stomach</from>
+					<to>Concentration_in_Stomach</to>
+				</connector>
+				<connector uid="6" angle="69.8374">
+					<from>Blood_Volume</from>
+					<to>Concentration_in_Blood</to>
+				</connector>
+				<connector uid="7" angle="317.261">
+					<from>Drug_in_Bloodstream</from>
+					<to>Concentration_in_Blood</to>
+				</connector>
+				<connector uid="8" angle="40.7321">
+					<from>Concentration_in_Stomach</from>
+					<to>Absorption</to>
+				</connector>
+				<connector uid="9" angle="147.002">
+					<from>Concentration_in_Blood</from>
+					<to>Absorption</to>
+				</connector>
+				<aux x="444.5" y="188" name="Absorption Constant\nof Drug"/>
+				<connector uid="10" angle="277.326">
+					<from>Absorption_Constant_of_Drug</from>
+					<to>Absorption</to>
+				</connector>
+				<connector uid="11" angle="51.4698">
+					<from>Stomach_Volume</from>
+					<to>Absorption</to>
+				</connector>
+				<aux x="708" y="461" name="Body Weight"/>
+				<connector uid="12" angle="242.784">
+					<from>Body_Weight</from>
+					<to>Blood_Volume</to>
+				</connector>
+				<aux x="188" y="89" name="Minimum Therapeutic\nConcentration"/>
+				<aux x="291" y="89" name="Toxic Concentration"/>
+				<stacked_container uid="13" x="620" y="577" width="460" height="316">
+					<table x="620" y="577" width="460" height="316" title="Table">
+						<item type="time"/>
+						<item>
+							<entity name="Body_Weight"/>
+						</item>
+						<item>
+							<entity name="Dosage"/>
+						</item>
+						<item>
+							<entity name="Concentration_in_Blood"/>
+						</item>
+					</table>
+				</stacked_container>
+				<connector uid="14" angle="30.9638">
+					<from>Drug_in_Bloodstream</from>
+					<to>Elimination</to>
+				</connector>
+				<stacked_container uid="15" x="1019" y="398">
+					<graph x="844" y="273" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Graph" left_axis_title="Concentration of Drug in Stomach" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Concentration_in_Stomach"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<aux x="496.5" y="89" name="Adaptive Response\nThreshold"/>
+				<aux x="623" y="66" name="Adaptive Response\nMagnitude"/>
+				<connector uid="16" angle="251.862">
+					<from>Concentration_in_Blood</from>
+					<to>Dosage</to>
+				</connector>
+				<connector uid="17" angle="249.444">
+					<from>Minimum_Therapeutic_Concentration</from>
+					<to>Dosage</to>
+				</connector>
+				<connector uid="18" angle="315.785">
+					<from>Adaptive_Response_Threshold</from>
+					<to>Metabolism_Constant</to>
+				</connector>
+				<connector uid="19" angle="31.3287">
+					<from>Adaptive_Response_Magnitude</from>
+					<to>Metabolism_Constant</to>
+				</connector>
+				<connector uid="20" angle="3.41659">
+					<from>Concentration_in_Blood</from>
+					<to>Metabolism_Constant</to>
+				</connector>
+				<connector uid="21" angle="22.9321">
+					<from>Metabolism_Constant</from>
+					<to>Dosage</to>
+				</connector>
+			</view>
+		</views>
+	</model>
+</xmile>
+

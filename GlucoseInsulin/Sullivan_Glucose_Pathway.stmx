@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xmile version="1.0" xmlns="http://docs.oasis-open.org/xmile/ns/XMILE/v1.0" xmlns:isee="http://iseesystems.com/XMILE">
+	<header>
+		<smile version="1.0" namespace="std, isee" uses_arrays="1"/>
+		<name>Glucose_Pathway</name>
+		<uuid>e72c1019-8d4b-4992-add5-40547823dfb5</uuid>
+		<vendor>isee systems, inc.</vendor>
+		<product version="1.2" isee:build_number="0897" isee:saved_by_v1="true" lang="en">Stella Professional</product>
+	</header>
+	<sim_specs isee:simulation_delay="0.003" method="Euler" time_units="Minutes" isee:pause_after_rates="false" isee:instantaneous_flows="false">
+		<start>1</start>
+		<stop>1000</stop>
+		<dt reciprocal="true">1</dt>
+	</sim_specs>
+	<dimensions>
+		<dim name="Dimension_1" size="1"/>
+	</dimensions>
+	<isee:prefs show_module_prefix="true" live_update_on_drag="true" layer="model" saved_runs="5" keep="false" rifp="true"/>
+	<isee:sensi_specs method="multivariate" runs="0"/>
+	<model_units/>
+	<model>
+		<variables>
+			<stock name="Blood Glucose">
+				<eqn>80</eqn>
+				<inflow>Absorption_of_Glucose</inflow>
+				<inflow>Hydrolysis</inflow>
+				<outflow>Cellular_Uptake</outflow>
+				<outflow>Conversion</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Cellular\nUptake">
+				<eqn>Uptake_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Blood Insulin">
+				<eqn>2.5</eqn>
+				<inflow>Pancreatic_Release</inflow>
+				<outflow>Insulin_Degradation</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Pancreatic\nRelease">
+				<eqn>Pancreatic_Secretion_Rate*Beta_Cell_Fraction</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Insulin\nDegradation">
+				<eqn>Degradation_Rate*(Blood_Insulin-2.5)</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Conversion">
+				<eqn>IF Glycogen_Conversion_Rate&gt;=0
+THEN Glycogen_Conversion_Rate
+ELSE 0</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Glycogen">
+				<eqn>10000</eqn>
+				<inflow>Conversion</inflow>
+				<inflow>Fat_Hydrolysis</inflow>
+				<outflow>Fat_Conversion</outflow>
+				<outflow>Hydrolysis</outflow>
+				<non_negative/>
+			</stock>
+			<aux name="Pancreatic\nSecretion\nRate">
+				<eqn>(Blood_Glucose-80)*.198/60</eqn>
+			</aux>
+			<aux name="Degradation\nRate">
+				<eqn>0.916/60</eqn>
+			</aux>
+			<aux name="Glucose\nIntake">
+				<eqn>PULSE(RANDOM(10,1000 , 1), 1, RANDOM(30, 24*60, 12))</eqn>
+			</aux>
+			<aux name="Uptake Rate">
+				<eqn>Insulin_Resistance*(1/3)*(2.59*7/6+(Blood_Insulin-2.5)*3.23+(Blood_Glucose-80)*3.04)/60</eqn>
+			</aux>
+			<aux name="Glycogen\nConversion\nRate">
+				<eqn>Insulin_Resistance*(2/3)*((Blood_Insulin-2.5)*3.23/60+(Blood_Glucose-80)*3.04/60)</eqn>
+			</aux>
+			<stock name="Digestive Tract">
+				<eqn>0</eqn>
+				<inflow>Ingestion</inflow>
+				<outflow>Absorption_of_Glucose</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Absorption of Glucose">
+				<eqn>Absorption_Rate*Digestive_Tract</eqn>
+				<non_negative/>
+			</flow>
+			<flow name="Ingestion">
+				<eqn>Glucose_Intake</eqn>
+				<non_negative/>
+			</flow>
+			<stock name="Fat">
+				<eqn>40000</eqn>
+				<inflow>Fat_Conversion</inflow>
+				<outflow>Fat_Hydrolysis</outflow>
+				<non_negative/>
+			</stock>
+			<flow name="Fat\nConversion">
+				<eqn>IF Glycogen_Conversion_Rate&gt;=0
+THEN ABS(Glycogen_Conversion_Rate)
+ELSE 0*Fat_Conversion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Fat Conversion\nRate">
+				<eqn>(Insulin_Resistance*(Blood_Insulin-2.5)*3.23/60)</eqn>
+			</aux>
+			<aux name="Absorption Rate">
+				<eqn>.018</eqn>
+			</aux>
+			<flow name="Hydrolysis">
+				<eqn>IF Glycogen_Conversion_Rate&lt;=0
+THEN -1*Glycogen_Conversion_Rate
+ELSE 0</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Beta Cell\nFraction">
+				<eqn>(1-TIME*0.12/525600)-0.0</eqn>
+			</aux>
+			<aux name="Insulin\nResistance">
+				<eqn>573/Free_Fatty_Acid</eqn>
+			</aux>
+			<flow name="Fat Hydrolysis">
+				<eqn>IF Glycogen_Conversion_Rate&lt;=0
+THEN ABS(Glycogen_Conversion_Rate)
+ELSE 0*Fat_Conversion_Rate</eqn>
+				<non_negative/>
+			</flow>
+			<aux name="Free Fatty Acid">
+				<eqn>Fat*(925-573)/(45000-19000)+316</eqn>
+			</aux>
+		</variables>
+		<views>
+			<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+				<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+				<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+				<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+					<isee:series_styles>
+						<isee:series_style color="blue" thickness="1"/>
+						<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF7F00" thickness="1"/>
+						<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#FF007F" thickness="1"/>
+						<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+						<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+						<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+						<isee:series_style color="#C8C8C8" thickness="1"/>
+					</isee:series_styles>
+				</graph>
+				<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="instantaneous"/>
+				<button color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top"/>
+				<isee:annotation color="black" background="#E0E0E0" font_size="12pt" transparent="false" corner_radius="0" icon_side="top" popup_background_color="#FFFECF"/>
+				<slider color="black" background="#E0E0E0" font_size="12pt" num_ticks="3" label_side="top" wrap_title="true" input_expands="true" input_width="100"/>
+				<knob color="#66CC66" background="#E0E0E0" font_size="12pt" label_side="bottom" wrap_title="true"/>
+				<numeric_input color="black" background="#E0E0E0" font_size="12pt" label_side="left" wrap_title="true" input_expands="false" input_width="100"/>
+				<switch color="black" background="#E0E0E0" font_size="12pt" label_side="top" wrap_title="true" isee:appearance="switch"/>
+				<options color="black" background="white" appearance="radio-buttons" arrangement="vertical"/>
+				<graphical_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<group_input color="black" background="#E0E0E0" font_size="12pt"/>
+				<lamp color="black" background="white" font_size="9pt"/>
+				<gauge color="black" background="white" needle_color="#F09F72" bar_color="#EEEEEE" bar_progress_color="black" appearance="radial" num_major_ticks="11" num_minor_ticks="11" show_numeric_value="true"/>
+				<isee:spatial_map color="black" background="white"/>
+			</style>
+			<view isee:show_pages="false" page_width="1016" page_height="776" isee:page_cols="2" isee:page_rows="2" isee:scroll_y="120" isee:popup_graphs_are_comparative="true" type="stock_flow">
+				<style color="black" background="white" font_style="normal" font_weight="normal" text_decoration="none" text_align="center" vertical_text_align="center" font_color="black" font_family="Arial" font_size="10pt" padding="2" border_color="black" border_width="thin" border_style="none">
+					<stock color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="45" height="35"/>
+					</stock>
+					<flow color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom"/>
+					<module color="blue" background="white" font_color="blue" font_size="9pt" label_side="top">
+						<shape type="rectangle" width="55" height="45"/>
+					</module>
+					<aux color="blue" background="white" font_color="blue" font_size="9pt" label_side="bottom">
+						<shape type="circle" radius="18"/>
+					</aux>
+					<group color="red" background="white" font_color="red" font_size="9pt"/>
+					<connector color="#FF007F" background="white" font_color="#FF007F" font_size="9pt" isee:thickness="1"/>
+					<text_box color="black" background="white" text_align="left" vertical_text_align="top" font_size="12pt"/>
+					<numeric_display color="blue" background="white" font_size="9pt" isee:transparent="false"/>
+					<graph color="black" background="white" font_size="12pt" axis_color="#666666" grid_color="#C8C8C8" legend_position="bottom" isee:transparent="false">
+						<isee:series_styles>
+							<isee:series_style color="blue" thickness="1"/>
+							<isee:series_style color="red" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="fuchsia" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="#008F44" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF7F00" thickness="1"/>
+							<isee:series_style color="#7F00FF" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#0CA0FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="lime" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#FF007F" thickness="1"/>
+							<isee:series_style color="aqua" thickness="1" pen_style="dot_dashed"/>
+							<isee:series_style color="#F586FF" thickness="1" pen_style="dotted"/>
+							<isee:series_style color="black" thickness="1" pen_style="dashed"/>
+							<isee:series_style color="#C8C8C8" thickness="1"/>
+						</isee:series_styles>
+					</graph>
+					<table color="black" background="#E0E0E0" text_align="right" font_size="12pt" orientation="vertical" wrap_text="false" isee:auto_fit="true" isee:use_alternate_row_colors="false" isee:unlimited_table_length="false" blank_column_width="80" column_width="160" isee:report_month_names="false" interval="1" report_balances="beginning" report_flows="instantaneous"/>
+				</style>
+				<stock x="200.5" y="450.5" width="99" height="69" name="Blood Glucose"/>
+				<flow x="335.5" y="482" name="Cellular\nUptake">
+					<pts>
+						<pt x="299.5" y="482"/>
+						<pt x="395.5" y="482"/>
+					</pts>
+				</flow>
+				<stock x="535" y="152.5" width="88" height="58" name="Blood Insulin"/>
+				<flow x="481.5" y="175" name="Pancreatic\nRelease">
+					<pts>
+						<pt x="428" y="175"/>
+						<pt x="535" y="175"/>
+					</pts>
+				</flow>
+				<flow x="658.5" y="169" name="Insulin\nDegradation">
+					<pts>
+						<pt x="623" y="169"/>
+						<pt x="718" y="169"/>
+					</pts>
+				</flow>
+				<flow x="238" y="394.5" name="Conversion">
+					<pts>
+						<pt x="238" y="450.5"/>
+						<pt x="238" y="326.5"/>
+					</pts>
+				</flow>
+				<stock x="190.5" y="244.5" width="125" height="82" name="Glycogen"/>
+				<aux x="606" y="286" name="Pancreatic\nSecretion\nRate"/>
+				<aux x="696" y="96" name="Degradation\nRate"/>
+				<aux x="391.5" y="617.5" name="Glucose\nIntake"/>
+				<aux x="370" y="421" name="Uptake Rate"/>
+				<connector uid="1" angle="312.016">
+					<from>Blood_Insulin</from>
+					<to>Insulin_Degradation</to>
+				</connector>
+				<connector uid="2" angle="156.801">
+					<from>Degradation_Rate</from>
+					<to>Insulin_Degradation</to>
+				</connector>
+				<connector uid="3" angle="317.829">
+					<from>Blood_Glucose</from>
+					<to>Pancreatic_Secretion_Rate</to>
+				</connector>
+				<connector uid="4" angle="155.556">
+					<from>Pancreatic_Secretion_Rate</from>
+					<to>Pancreatic_Release</to>
+				</connector>
+				<connector uid="5" angle="305.311">
+					<from>Uptake_Rate</from>
+					<to>Cellular_Uptake</to>
+				</connector>
+				<aux x="123" y="330" name="Glycogen\nConversion\nRate"/>
+				<connector uid="6" angle="330.713">
+					<from>Glycogen_Conversion_Rate</from>
+					<to>Conversion</to>
+				</connector>
+				<connector uid="7" angle="129.653">
+					<from>Blood_Insulin</from>
+					<to>Glycogen_Conversion_Rate</to>
+				</connector>
+				<connector uid="8" angle="279.211">
+					<from>Blood_Insulin</from>
+					<to>Uptake_Rate</to>
+				</connector>
+				<stacked_container uid="9" x="837" y="682">
+					<graph x="662" y="557" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="true" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Blood Glucose and Insulin" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="red" pen_style="dot_dashed" title="Blood Insulin (mU/dL)" pen_width="1" index="0" right_axis="true" show_y_axis="true">
+							<entity name="Blood_Insulin"/>
+						</plot>
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Blood_Glucose"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stock x="200.5" y="677.5" width="99" height="63" name="Digestive Tract"/>
+				<flow x="250" y="604.5" name="Absorption of Glucose">
+					<pts>
+						<pt x="250" y="677.5"/>
+						<pt x="250" y="519.5"/>
+					</pts>
+				</flow>
+				<flow x="353.25" y="707" name="Ingestion">
+					<pts>
+						<pt x="407" y="707"/>
+						<pt x="299.5" y="707"/>
+					</pts>
+				</flow>
+				<connector uid="10" angle="164.168">
+					<from>Glucose_Intake</from>
+					<to>Ingestion</to>
+				</connector>
+				<stock x="400.5" y="245" width="118" height="81" name="Fat"/>
+				<flow x="352" y="257" name="Fat\nConversion">
+					<pts>
+						<pt x="315.5" y="257"/>
+						<pt x="400.5" y="257"/>
+					</pts>
+				</flow>
+				<aux x="352" y="198" name="Fat Conversion\nRate"/>
+				<connector uid="11" angle="315.807">
+					<from>Fat_Conversion_Rate</from>
+					<to>Fat_Conversion</to>
+				</connector>
+				<connector uid="12" angle="127.619">
+					<from>Blood_Insulin</from>
+					<to>Fat_Conversion_Rate</to>
+				</connector>
+				<connector uid="13" angle="35.2476">
+					<from>Blood_Glucose</from>
+					<to>Uptake_Rate</to>
+				</connector>
+				<connector uid="14" angle="163.009">
+					<from>Blood_Glucose</from>
+					<to>Glycogen_Conversion_Rate</to>
+				</connector>
+				<aux x="123" y="551" name="Absorption Rate"/>
+				<connector uid="15" angle="315">
+					<from>Absorption_Rate</from>
+					<to>Absorption_of_Glucose</to>
+				</connector>
+				<flow x="281" y="382.5" name="Hydrolysis">
+					<pts>
+						<pt x="281" y="326.5"/>
+						<pt x="281" y="450.5"/>
+					</pts>
+				</flow>
+				<connector uid="16" angle="131.326">
+					<from>Digestive_Tract</from>
+					<to>Absorption_of_Glucose</to>
+				</connector>
+				<aux x="426.5" y="108" name="Beta Cell\nFraction"/>
+				<aux x="71" y="198" name="Insulin\nResistance"/>
+				<connector uid="17" angle="268.363">
+					<from>Insulin_Resistance</from>
+					<to>Glycogen_Conversion_Rate</to>
+				</connector>
+				<connector uid="18" angle="49.6859">
+					<from>Insulin_Resistance</from>
+					<to>Fat_Conversion_Rate</to>
+				</connector>
+				<connector uid="19" angle="295.769">
+					<from>Insulin_Resistance</from>
+					<to>Uptake_Rate</to>
+				</connector>
+				<flow x="364" y="312" name="Fat Hydrolysis">
+					<pts>
+						<pt x="400.5" y="312"/>
+						<pt x="315.5" y="312"/>
+					</pts>
+				</flow>
+				<connector uid="20" angle="344.476">
+					<from>Fat_Conversion_Rate</from>
+					<to>Fat_Hydrolysis</to>
+				</connector>
+				<connector uid="21" angle="327.426">
+					<from>Glycogen_Conversion_Rate</from>
+					<to>Hydrolysis</to>
+				</connector>
+				<connector uid="22" angle="90">
+					<from>Glycogen_Conversion_Rate</from>
+					<to>Fat_Conversion</to>
+				</connector>
+				<connector uid="23" angle="318.366">
+					<from>Glycogen_Conversion_Rate</from>
+					<to>Fat_Hydrolysis</to>
+				</connector>
+				<aux x="227" y="143.5" name="Free Fatty Acid"/>
+				<connector uid="24" angle="99.2461">
+					<from>Fat</from>
+					<to>Free_Fatty_Acid</to>
+				</connector>
+				<connector uid="25" angle="143.643">
+					<from>Free_Fatty_Acid</from>
+					<to>Insulin_Resistance</to>
+				</connector>
+				<connector uid="26" angle="353.387">
+					<from>Beta_Cell_Fraction</from>
+					<to>Pancreatic_Release</to>
+				</connector>
+				<stacked_container uid="27" x="831" y="400">
+					<graph x="656" y="275" width="350" height="250" type="time_series" show_grid="false" include_units_in_legend="false" plot_numbers="false" num_x_grid_lines="0" num_y_grid_lines="0" num_x_labels="5" num_y_labels="3" title="Graph" left_axis_multi_scale="false" left_axis_auto_scale="true" right_axis_multi_scale="false" right_axis_auto_scale="true">
+						<plot color="blue" pen_width="1" index="0" show_y_axis="true">
+							<entity name="Blood_Glucose"/>
+							<scale max="80"/>
+						</plot>
+					</graph>
+				</stacked_container>
+				<stacked_container uid="28" x="225.5" y="907">
+					<table x="50.5" y="782" width="350" height="250" title="Table">
+						<item type="time"/>
+						<item>
+							<entity name="Blood_Glucose"/>
+						</item>
+						<item>
+							<entity name="Blood_Glucose"/>
+						</item>
+						<item>
+							<entity name="Blood_Glucose"/>
+						</item>
+						<item>
+							<entity name="Blood_Glucose"/>
+						</item>
+					</table>
+				</stacked_container>
+			</view>
+		</views>
+	</model>
+</xmile>
+
